@@ -199,6 +199,9 @@ class DiaCatalogSourceSelectorTask(measAlg.StarSelectorTask):
         doColorCut = True
         with ds9.Buffering():
             refSchema = matches[0][0].schema
+            print "-----------------"
+            print refSchema
+            print "-----------------"
             rRefFluxField = measAlg.getRefFluxField(refSchema, "r")
             gRefFluxField = measAlg.getRefFluxField(refSchema, "g")
             for ref, source, d in matches:

@@ -113,7 +113,8 @@ class GetCoaddAsTemplateTask(pipeBase.Task):
             nPatchesFound += 1
             self.log.info("Reading patch %s" % patchArgDict)
             coaddPatch = sensorRef.get(**patchArgDict)
-            coaddExposure.getMaskedImage().assign(coaddPatch.getMaskedImage(), coaddPatch.getBBox())
+            coaddView = afwImage.MaskedImageF(coaddExposure.getMaskedImage(), coaddPatch.getBBox())
+            coaddView <<= coaddPatch.getMaskedImage()
             if coaddFilter is None:
                 coaddFilter = coaddPatch.getFilter()
 
@@ -165,14 +166,31 @@ class GetCalexpAsTemplateTask(pipeBase.Task):
          - sources: source catalog measured on the template
         """
 
-        if len(templateIdList) > 1:
-            self.log.warn("Multiple template visits supplied. Getting template from first visit: %s" %
-                          (templateIdList[0]['visit']))
+        #if len(templateIdList):
+        #    self.log.warn("Multiple template visits supplied. Getting template from first visit: %s" %
+        #                  (templateIdList[0]['visit']))
 
-        templateId = sensorRef.dataId.copy()
-        templateId["visit"] = templateIdList[0]['visit']
-        self.log.info("Fetching calexp (%s) as template." % (templateId))
+	#print "refList",templateIdList.refList
+	#print "dataId", templateIdList.dataId
+	print "....."
 
+	#calexps = templateIdList.getButler().get("calexp")
+	for elem in templateIdList:
+            print elem
+            
+            elem["visit"]=int( elem["visit"])
+            elem["ccd"]=int( elem["ccd"])
+
+#		print elem.dataId["visit"]
+	print "....."
+	templateId = templateIdList[0]
+#	templateId = templateIdList[0].dataId
+        
+	#dataRefList =  templateIdList.idList
+	#templateId["visit"] = dataRefList[0]['visit']
+        #templateId = templateIdList.refList
+	self.log.info("Fetching calexp (%s) as template." % (templateId))
+	#print templateId
         butler = sensorRef.getButler()
         template = butler.get(datasetType="calexp", dataId=templateId)
         if self.config.doAddCalexpBackground:
